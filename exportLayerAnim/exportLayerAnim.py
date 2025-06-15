@@ -143,6 +143,9 @@ class ExportLayerAnim(Extension):
 
     def export(self):
         Application.setBatchmode(True)
+        
+        num_frames = self.doc.animationLength()
+        num_digits = len(str(num_frames))
 
         # Create the folder if missing
         self.exportPath = self.exportPath + "/" + self.exportDir
@@ -175,16 +178,16 @@ class ExportLayerAnim(Extension):
             # Export animated layers
             if len(animatedLayers) > 0:
                 haveAnimatedLayers = True
-                for i in range(self.doc.animationLength()):
+                for i in range(num_frames):
                     self.doc.setCurrentTime(i)
 
                     for layer in animatedLayers:
                         if self.hasKeyframeAtTime(layer['node'], i):
-                            self.exportLayer(layer['node'], compo, "_" + str(layer['frame']))
+                            self.exportLayer(layer['node'], compo, "_" + str(layer['frame']).zfill(num_digits))
                             layer['frame'] = layer['frame'] + 1
 
         # Undo the setCurrentTime
-        if haveAnimatedLayers and self.doc.animationLength() > 0:
+        if haveAnimatedLayers and num_frames > 0:
             Application.action('edit_undo').trigger()
             self.doc.save()
         Application.setBatchmode(False)
